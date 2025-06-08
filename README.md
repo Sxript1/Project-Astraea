@@ -3,7 +3,7 @@
 
 ![Project Astraea Concept](assets/Project%20Astraea%20Concept.jpg)
 
-[🌐 Live Demo](](https://sxript1.github.io/Project-Astraea/)) <!-- 🔧 Replace this link with your GitHub Pages URL -->
+[🌐 Live Demo](https://sxript1.github.io/Project-Astraea/) <!-- 🔧 Replace this link with your GitHub Pages URL -->
 
 ---
 
