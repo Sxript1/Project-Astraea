@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Astraea: Interactive Proposal</title>
+    <!-- Chosen Palette: Cosmic Neutral -->
+    <!-- Application Structure Plan: A single-page dashboard layout is chosen to present a high-level overview while inviting deeper exploration. The structure is non-linear, allowing users to jump between sections like "Vision," "Technology," "Mission," and "Roadmap" via a persistent sidebar navigation. This is more user-friendly than a long-scrolling document, as it lets different stakeholders (e.g., technical vs. financial) directly access relevant information. Key interactions include clicking on technology cards to reveal details, hovering over timeline phases to see summaries, and viewing dynamic charts for cost and timeline breakdowns. This structure prioritizes discoverability and user engagement over the report's linear format. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Roadmap Phases (A, B, C/D) & Timeline -> Goal: Show project progression over time -> Viz/Method: Interactive horizontal bar chart (Chart.js/Canvas) -> Interaction: Hovering over bars displays phase details and goals in a separate text block -> Justification: More engaging and space-efficient than a static list.
+        - Report Info: Key Technologies (T1, T2, T3) -> Goal: Explain complex technical challenges -> Viz/Method: Interactive cards with icons (HTML/Tailwind) -> Interaction: Clicking a card expands to show a detailed explanation -> Justification: Organizes dense information cleanly and prevents overwhelming the user.
+        - Report Info: Mission Architecture (Pathfinder & Ceres Run) -> Goal: Detail the two-step mission plan -> Viz/Method: An interactive tabbed interface with lists, tables, and a donut chart (HTML/Tailwind/Chart.js) -> Interaction: Clicking tabs switches between detailed mission profiles. -> Justification: Allows for a much deeper dive into mission specifics without cluttering the initial view.
+        - Report Info: Overall Concept -> Goal: Inspire and inform -> Viz/Method: A hero section with a compelling image and the core vision statement -> Interaction: Static hero -> Justification: Captures attention and sets the tone immediately.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            color: #1a202c;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 40vh;
+        }
+        .chart-container-small {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 300px;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        .nav-link.active {
+            background-color: rgba(67, 56, 202, 0.1);
+            color: #4338ca;
+            border-left-color: #4338ca;
+        }
+        .nav-link:hover {
+            background-color: rgba(67, 56, 202, 0.05);
+            border-left-color: #a5b4fc;
+        }
+        .card-flip {
+            perspective: 1000px;
+        }
+        .card-flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flip:hover .card-flip-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-button.active {
+            color: #4338ca;
+            border-bottom-color: #4338ca;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="flex h-screen bg-gray-100">
+        <div class="hidden md:flex flex-col w-64 bg-white shadow-lg">
+            <div class="flex items-center justify-center h-20 shadow-md">
+                <h1 class="text-2xl font-bold text-indigo-700">Project Astraea</h1>
+            </div>
+            <nav class="flex-1 px-2 py-4 space-y-2">
+                <a href="#vision" class="nav-link flex items-center px-4 py-2 text-gray-700 font-medium rounded-md">
+                    <span class="mr-3 text-lg">★</span> Vision
+                </a>
+                <a href="#opportunity" class="nav-link flex items-center px-4 py-2 text-gray-700 font-medium rounded-md">
+                    <span class="mr-3 text-lg">📈</span> Opportunity
+                </a>
+                <a href="#solution" class="nav-link flex items-center px-4 py-2 text-gray-700 font-medium rounded-md">
+                    <span class="mr-3 text-lg">🚀</span> The Solution
+                </a>
+                <a href="#technology" class="nav-link flex items-center px-4 py-2 text-gray-700 font-medium rounded-md">
+                    <span class="mr-3 text-lg">🔬</span> Key Technologies
+                </a>
+                <a href="#mission" class="nav-link flex items-center px-4 py-2 text-gray-700 font-medium rounded-md">
+                    <span class="mr-3 text-lg">🗺️</span> Mission Architecture
+                </a>
+                <a href="#roadmap" class="nav-link flex items-center px-4 py-2 text-gray-700 font-medium rounded-md">
+                    <span class="mr-3 text-lg">📅</span> Roadmap
+                </a>
+                <a href="#contact" class="nav-link flex items-center px-4 py-2 text-gray-700 font-medium rounded-md">
+                    <span class="mr-3 text-lg">✉️</span> Contact
+                </a>
+            </nav>
+        </div>
+
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+                <div class="container mx-auto px-6 py-8">
+                    
+                    <section id="vision" class="mb-16 scroll-mt-20">
+                        <div class="relative rounded-xl overflow-hidden shadow-2xl h-[60vh] flex items-center justify-center text-white text-center p-4" style="background: url('https://storage.googleapis.com/gemini-prod/images/05179261-75d8-4f05-8e7c-eb8d363d6b05.png') no-repeat center center; background-size: cover;">
+                            <div class="absolute inset-0 bg-black opacity-50"></div>
+                            <div class="relative z-10">
+                                <h2 class="text-4xl md:text-6xl font-bold mb-4">The Next Age of Sail</h2>
+                                <p class="text-lg md:text-2xl max-w-4xl mx-auto">For centuries, galleons opened the world's oceans. Today, a new type of galleon, powered by the inexhaustible light of the stars, will unlock the solar system.</p>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <section id="opportunity" class="mb-16 p-8 bg-white rounded-xl shadow-lg scroll-mt-20">
+                         <h3 class="text-3xl font-bold mb-6 text-center text-gray-800">Redefining Interplanetary Logistics</h3>
+                         <p class="text-center text-lg text-gray-600 mb-10 max-w-3xl mx-auto">The next fifty years of human expansion requires a paradigm shift from one-off sprints to sustainable, reusable, and cost-effective deep-space transport. Project Astraea addresses this critical need.</p>
+                         <div class="grid md:grid-cols-2 gap-8 text-center">
+                            <div class="p-6 border border-gray-200 rounded-lg">
+                                <h4 class="text-xl font-semibold mb-3 text-indigo-700">The Problem: Tyranny of the Rocket Equation</h4>
+                                <p class="text-gray-600">Current missions are magnificent but unsustainable. They are fundamentally limited by the massive amount of propellant they must carry, making long-duration, high-mass transport to deep-space targets astronomically expensive and logistically complex.</p>
+                            </div>
+                            <div class="p-6 border border-gray-200 rounded-lg">
+                                <h4 class="text-xl font-semibold mb-3 text-indigo-700">The Analogy: Sustainable "Sea Lanes"</h4>
+                                <p class="text-gray-600">Astraea operates like a terrestrial cargo ship. It is not built for speed, but for efficiency and endurance. By using propellantless solar sails, it provides the foundation for the "space lane" economy of tomorrow, moving heavy cargo sustainably.</p>
+                            </div>
+                         </div>
+                    </section>
+
+                    <section id="solution" class="mb-16 p-8 bg-white rounded-xl shadow-lg scroll-mt-20">
+                        <h3 class="text-3xl font-bold mb-10 text-center text-gray-800">The Solution: Project Astraea</h3>
+                        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                            <div class="bg-gray-50 p-6 rounded-lg text-center shadow">
+                                 <div class="text-4xl mb-3">🛰️</div>
+                                <h4 class="text-lg font-semibold mb-2 text-gray-800">Propulsion</h4>
+                                <p class="text-sm text-gray-600">Meta-material solar sails for primary thrust combined with high-efficiency ion thrusters for fine maneuvering.</p>
+                            </div>
+                            <div class="bg-gray-50 p-6 rounded-lg text-center shadow">
+                                <div class="text-4xl mb-3">🏗️</div>
+                                <h4 class="text-lg font-semibold mb-2 text-gray-800">Structure</h4>
+                                <p class="text-sm text-gray-600">A central carbon nano-fiber "keel" truss for strength, with a non-structural composite hull for protection and aesthetics.</p>
+                            </div>
+                            <div class="bg-gray-50 p-6 rounded-lg text-center shadow">
+                                <div class="text-4xl mb-3">🏡</div>
+                                <h4 class="text-lg font-semibold mb-2 text-gray-800">Habitation</h4>
+                                <p class="text-sm text-gray-600">Shielded modules with closed-loop life support (ECLSS) and hydroponic greenhouses for missions up to five years.</p>
+                            </div>
+                             <div class="bg-gray-50 p-6 rounded-lg text-center shadow">
+                                <div class="text-4xl mb-3">⚡</div>
+                                <h4 class="text-lg font-semibold mb-2 text-gray-800">Power & Thermal</h4>
+                                <p class="text-sm text-gray-600">High-efficiency solar arrays provide power, while the vast sails act as radiators to manage waste heat.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="technology" class="mb-16 p-8 bg-white rounded-xl shadow-lg scroll-mt-20">
+                         <h3 class="text-3xl font-bold mb-10 text-center text-gray-800">Key Enabling Technologies</h3>
+                         <p class="text-center text-lg text-gray-600 mb-10 max-w-3xl mx-auto">Project Astraea is ambitious but grounded in developable, near-future technology. Success hinges on maturing three key areas. Hover over a card to learn more.</p>
+                        <div class="grid md:grid-cols-3 gap-8">
+                            <div class="card-flip h-64">
+                                <div class="card-flip-inner shadow-lg rounded-xl">
+                                    <div class="card-front bg-indigo-600 text-white">
+                                        <div class="text-5xl mb-4">T1</div>
+                                        <h4 class="text-2xl font-bold">Meta-Material Solar Sails</h4>
+                                    </div>
+                                    <div class="card-back bg-white text-gray-700">
+                                        <p class="text-sm">Developing a sail substrate with a programmable grid that can switch sections from reflective (high thrust) to transparent (no thrust), allowing for fine steering without mechanical gimbaling.</p>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="card-flip h-64">
+                                <div class="card-flip-inner shadow-lg rounded-xl">
+                                    <div class="card-front bg-indigo-700 text-white">
+                                        <div class="text-5xl mb-4">T2</div>
+                                        <h4 class="text-2xl font-bold">Autonomous Navigation</h4>
+                                    </div>
+                                    <div class="card-back bg-white text-gray-700">
+                                        <p class="text-sm">An advanced AI flight control system to manage thousands of sail tethers, autonomously optimizing sail shape and angle for the desired trajectory and keeping the structure stable.</p>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="card-flip h-64">
+                                <div class="card-flip-inner shadow-lg rounded-xl">
+                                    <div class="card-front bg-indigo-800 text-white">
+                                        <div class="text-5xl mb-4">T3</div>
+                                        <h4 class="text-2xl font-bold">Orbital Assembly</h4>
+                                    </div>
+                                    <div class="card-back bg-white text-gray-700">
+                                        <p class="text-sm">The architecture relies on super heavy-lift vehicles to launch components for robotic assembly at a Lagrange point, building the ship in space where it will operate.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="mission" class="mb-16 p-8 bg-white rounded-xl shadow-lg scroll-mt-20">
+                        <h3 class="text-3xl font-bold mb-6 text-center text-gray-800">Mission Architecture</h3>
+                        <p class="text-center text-lg text-gray-600 mb-8 max-w-3xl mx-auto">A project of this magnitude must be approached in deliberate, risk-mitigating phases. The architecture begins with an uncrewed technology demonstrator before proceeding to the full-scale crewed vessel.</p>
+                        
+                        <div class="w-full max-w-4xl mx-auto">
+                            <div class="flex justify-center border-b border-gray-300 mb-8">
+                                <button id="tab-pathfinder" class="tab-button text-lg font-semibold py-4 px-6 focus:outline-none active">Step 1: Pathfinder Mission</button>
+                                <button id="tab-ceres" class="tab-button text-lg font-semibold py-4 px-6 focus:outline-none">Step 2: Inaugural Voyage</button>
+                            </div>
+
+                            <div id="content-pathfinder" class="tab-content">
+                                <div class="grid md:grid-cols-2 gap-8">
+                                    <div>
+                                        <h4 class="text-2xl font-semibold mb-4 text-indigo-700">The "Star Sloop"</h4>
+                                        <p class="text-gray-600 mb-6">The first crucial step is a smaller, uncrewed Pathfinder mission. This "Star Sloop" will consist of a single mast and sail to test and validate the three key technologies in a real deep-space environment, retiring the project's greatest technical risks before committing to the full-scale vehicle.</p>
+                                        <div class="bg-gray-50 p-4 rounded-lg border">
+                                            <h5 class="font-bold text-gray-700 mb-2">Key Parameters</h5>
+                                            <ul class="text-sm text-gray-600 space-y-1">
+                                                <li><strong>Crew:</strong> Uncrewed (Robotic)</li>
+                                                <li><strong>Duration:</strong> ~1.5 Years</li>
+                                                <li><strong>Target:</strong> High Earth Orbit / Solar Orbit</li>
+                                                <li><strong>Launch Target:</strong> 2035</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-100 p-6 rounded-lg">
+                                        <h5 class="text-xl font-bold text-gray-800 mb-4">Primary Objectives</h5>
+                                        <ul class="space-y-3">
+                                            <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span><span><strong>Validate Sail Deployment:</strong> Demonstrate successful unfurling and tensioning of the large-scale CFRP mast and sail.</span></li>
+                                            <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span><span><strong>Test Autonomous Navigation:</strong> Prove the AI flight control can maintain stability and perform basic maneuvers using the sail.</span></li>
+                                            <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span><span><strong>Characterize Performance:</strong> Gather long-term data on the meta-material sail's performance, thrust, and degradation in deep space.</span></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="content-ceres" class="tab-content hidden">
+                                <div class="grid md:grid-cols-2 gap-8">
+                                    <div>
+                                        <h4 class="text-2xl font-semibold mb-4 text-indigo-700">"The Ceres Run"</h4>
+                                        <p class="text-gray-600 mb-6">The first crewed mission for Astraea-1 should play to its unique strengths: a multi-year tour of the Main Asteroid Belt, culminating in an extended orbital research mission at the dwarf planet Ceres. This establishes the ship as a premier platform for science and resource prospecting.</p>
+                                        <div class="bg-gray-50 p-4 rounded-lg border">
+                                            <h5 class="font-bold text-gray-700 mb-2">Key Parameters</h5>
+                                            <ul class="text-sm text-gray-600 space-y-1">
+                                                <li><strong>Crew:</strong> 8 - 12 Astronauts & Scientists</li>
+                                                <li><strong>Est. Duration:</strong> ~3-4 Years</li>
+                                                <li><strong>Primary Target:</strong> Dwarf Planet Ceres</li>
+                                                <li><strong>Secondary Targets:</strong> Vesta, various asteroids</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-center">
+                                         <h5 class="text-xl font-bold text-gray-800 mb-4 text-center">Notional Mission Time Allocation</h5>
+                                         <div class="chart-container-small">
+                                             <canvas id="ceresMissionChart"></canvas>
+                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="roadmap" class="mb-16 p-8 bg-white rounded-xl shadow-lg scroll-mt-20">
+                        <h3 class="text-3xl font-bold mb-10 text-center text-gray-800">Development Roadmap</h3>
+                        <p class="text-center text-lg text-gray-600 mb-10 max-w-3xl mx-auto">Project Astraea is a multi-decade endeavor. The following chart visualizes the proposed phased approach to bring this vision to reality. Hover over a phase for details.</p>
+                        <div class="chart-container">
+                            <canvas id="roadmapChart"></canvas>
+                        </div>
+                        <div id="roadmap-details" class="mt-8 p-6 bg-indigo-50 rounded-lg text-center min-h-[100px] flex items-center justify-center">
+                            <p class="text-indigo-800 font-medium">Hover over a phase on the chart to see details.</p>
+                        </div>
+                    </section>
+
+                    <section id="contact" class="text-center p-8 bg-indigo-700 text-white rounded-xl shadow-lg scroll-mt-20">
+                        <h3 class="text-3xl font-bold mb-4">Join the Consortium</h3>
+                        <p class="max-w-2xl mx-auto mb-6">We invite interested parties from government space agencies, private aerospace corporations, research institutions, and investment funds to join us as foundational partners in this historic undertaking. Together, we can build the vessels that will open the next frontier.</p>
+                        <a href="mailto:sxripture@gmail.com" class="inline-block bg-white text-indigo-700 font-bold py-3 px-8 rounded-lg shadow-md hover:bg-gray-100 transition-colors">
+                            Contact Us
+                        </a>
+                    </section>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('nav a');
+
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.4 
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${id}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+    
+    navLinks.forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    const tabPathfinder = document.getElementById('tab-pathfinder');
+    const tabCeres = document.getElementById('tab-ceres');
+    const contentPathfinder = document.getElementById('content-pathfinder');
+    const contentCeres = document.getElementById('content-ceres');
+
+    tabPathfinder.addEventListener('click', () => {
+        tabPathfinder.classList.add('active');
+        tabCeres.classList.remove('active');
+        contentPathfinder.classList.remove('hidden');
+        contentCeres.classList.add('hidden');
+    });
+
+    tabCeres.addEventListener('click', () => {
+        tabCeres.classList.add('active');
+        tabPathfinder.classList.remove('active');
+        contentCeres.classList.remove('hidden');
+        contentPathfinder.classList.add('hidden');
+    });
+
+    const roadmapData = {
+        labels: ['Phase A', 'Phase B', 'Phase C/D'],
+        datasets: [{
+            label: 'Duration (Years)',
+            data: [2, 3, 5],
+            backgroundColor: [
+                'rgba(129, 140, 248, 0.7)',
+                'rgba(99, 102, 241, 0.7)',
+                'rgba(67, 56, 202, 0.7)',
+            ],
+            borderColor: [
+                'rgba(129, 140, 248, 1)',
+                'rgba(99, 102, 241, 1)',
+                'rgba(67, 56, 202, 1)',
+            ],
+            borderWidth: 1,
+            barThickness: 50,
+        }]
+    };
+
+    const phaseDetails = {
+        'Phase A': '<strong>Phase A (2 Years): Feasibility Study & Consortium Building.</strong> Goal is to solidify partnerships and mature key technologies to TRL 4. Seeking initial seed funding.',
+        'Phase B': '<strong>Phase B (3 Years): Pathfinder Development.</strong> Focus on designing, fabricating, and launching the uncrewed "Star Sloop" Pathfinder mission to test core technologies.',
+        'Phase C/D': '<strong>Phase C/D (5+ Years): Astraea-1 Prime Development.</strong> Leverage Pathfinder data for the final design, manufacturing, and orbital assembly of the first Solar Galleon.'
+    };
+
+    const roadmapCtx = document.getElementById('roadmapChart').getContext('2d');
+    const roadmapChart = new Chart(roadmapCtx, {
+        type: 'bar',
+        data: roadmapData,
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    enabled: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Duration (Years)'
+                    }
+                },
+                y: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            onHover: (event, chartElement) => {
+                const detailsDiv = document.getElementById('roadmap-details');
+                if (chartElement.length) {
+                    const index = chartElement[0].index;
+                    const label = roadmapData.labels[index];
+                    detailsDiv.innerHTML = phaseDetails[label];
+                    event.native.target.style.cursor = 'pointer';
+                } else {
+                    detailsDiv.innerHTML = '<p class="text-indigo-800 font-medium">Hover over a phase on the chart to see details.</p>';
+                    event.native.target.style.cursor = 'default';
+                }
+            }
+        }
+    });
+
+    const ceresMissionCtx = document.getElementById('ceresMissionChart').getContext('2d');
+    const ceresMissionChart = new Chart(ceresMissionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Interplanetary Cruise', 'Ceres Orbital Science', 'Asteroid Fly-Bys'],
+            datasets: [{
+                label: 'Time Allocation',
+                data: [60, 30, 10],
+                backgroundColor: [
+                    'rgba(99, 102, 241, 0.8)',
+                    'rgba(67, 56, 202, 0.8)',
+                    'rgba(129, 140, 248, 0.8)',
+                ],
+                borderColor: '#ffffff',
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+});
+</script>
+</body>
+</html>
