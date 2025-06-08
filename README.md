@@ -1,7 +1,7 @@
 # Project Astraea 🚀  
 *Galleon-Class Solar Sail Cruiser*
 
-![Project Astraea Concept](./Project%20Astraea%20Concept.jpg)
+![Project Astraea Concept](assets/Project%20Astraea%20Concept.jpg)
 
 [🌐 Live Demo]([https://yourusername.github.io/project-astraea](https://github.com/Sxript1/Project-Astraea)) <!-- 🔧 Replace this link with your GitHub Pages URL -->
 
@@ -25,7 +25,7 @@ The interactive site (`index.html`) translates the formal white paper into an en
 - 🛰️ **Operational Use Cases** — Asteroid belt prospecting, planetary resupply, and long-term habitation modules  
 - 📜 **Infographic Blueprints** — Vintage-style engineering visuals of ship structure and sail deployment  
 
-![Project Astraea Infographic](./Project%20Astraea%20Infographic.jpg)
+![Project Astraea Infographic](assets/Project%20Astraea%20Infographic.jpg)
 
 ---
 
